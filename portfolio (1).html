@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lim Yi Duan — Portfolio</title>
+  <meta name="description" content="Lim Yi Duan — Economics student at SMU, ASEAN Scholar, and builder exploring finance, AI, and systems thinking." />
+  <meta property="og:title" content="Lim Yi Duan — Portfolio" />
+  <meta property="og:description" content="Economics student at SMU, ASEAN Scholar, and builder exploring finance, AI, and systems thinking." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --bg:           #0c0e14;
+      --surface:      #12151e;
+      --surface-2:    #181c28;
+      --border:       rgba(255,255,255,0.07);
+      --border-hover: rgba(200,170,100,0.3);
+      --text:         #e8e4dc;
+      --text-muted:   rgba(232,228,220,0.5);
+      --text-dim:     rgba(232,228,220,0.28);
+      --gold:         #c8aa64;
+      --gold-dim:     rgba(200,170,100,0.11);
+      --sidebar-w:    260px;
+      --radius:       12px;
+      --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Lock scroll when mobile menu is open */
+    body.menu-open { overflow: hidden; }
+
+    /* Ambient background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 0%,  rgba(200,170,100,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 10% 80%, rgba(100,130,200,0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       ACCESSIBILITY
+    ══════════════════════════════════════════ */
+
+    /* Remove default outline, apply custom only on keyboard nav */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* Skip to content — visible on Tab, hidden otherwise */
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 16px;
+      z-index: 9999;
+      background: var(--gold);
+      color: #0c0e14;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: top 0.15s ease;
+    }
+    .skip-link:focus { top: 16px; }
+
+    /* Respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════ */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 32px;
+      border-right: 1px solid var(--border);
+      background: rgba(12,14,20,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 100;
+    }
+
+    .sidebar-brand { margin-bottom: 44px; }
+
+    .sidebar-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /*
+      NAV BUTTONS
+      - cursor:pointer — they are interactive
+      - min-height 44px — WCAG 2.5.5 touch target
+      - visible active + hover states
+      - :focus-visible ring via global rule
+    */
+    .nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 11px 14px;
+      min-height: 44px;
+      border-radius: 8px;
+      width: 100%;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      transition: color 0.18s ease, background 0.18s ease;
+      position: relative;
+    }
+
+    /* Animated left accent bar */
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 50%;
+      transform: translateY(-50%) scaleY(0);
+      width: 2px; height: 16px;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: transform 0.2s var(--ease-out);
+    }
+
+    .nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+
+    .nav-btn.active {
+      color: var(--gold);
+      background: var(--gold-dim);
+      font-weight: 500;
+    }
+
+    .nav-btn.active::before { transform: translateY(-50%) scaleY(1); }
+
+    /* Sidebar footer with contact */
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      border-radius: 4px;
+      padding: 2px 0;
+      transition: color 0.18s ease;
+    }
+
+    .contact-link svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .contact-link:hover { color: var(--gold); }
+
+    .sidebar-note {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.72;
+    }
+
+    /* ══════════════════════════════════════════
+       MOBILE HEADER
+    ══════════════════════════════════════════ */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: rgba(10,12,18,0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 300;
+    }
+
+    .mobile-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Hamburger — 44×44 touch target, animated to ✕ */
+    .hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border-radius: 8px;
+      transition: background 0.18s ease;
+    }
+
+    .hamburger:hover { background: rgba(255,255,255,0.06); }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: currentColor;
+      transition: transform 0.25s ease, opacity 0.2s ease;
+      transform-origin: center;
+    }
+
+    .hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* Mobile dropdown menu — slides down */
+    .mobile-menu {
+      position: fixed;
+      top: 60px; left: 0; right: 0;
+      background: rgba(10,12,18,0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px 18px;
+      z-index: 299;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      /* Hidden state */
+      transform: translateY(-6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.2s var(--ease-out), opacity 0.2s ease;
+    }
+
+    .mobile-menu.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-menu .nav-btn { font-size: 15px; padding: 13px 16px; min-height: 48px; }
+
+    .mobile-menu-footer {
+      display: flex;
+      gap: 18px;
+      padding: 12px 16px 2px;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+    }
+
+    .mobile-menu-footer .contact-link { font-size: 13px; }
+
+    /* ══════════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 72px 56px 96px;
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE TRANSITIONS
+    ══════════════════════════════════════════ */
+    .page { display: none; }
+
+    .page.active {
+      display: block;
+      animation: pageIn 0.38s var(--ease-out) both;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════
+       TYPOGRAPHY
+    ══════════════════════════════════════════ */
+    .display-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(50px, 7vw, 78px);
+      font-weight: 600;
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .sub-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .section-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .lead {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.78;
+    }
+
+    .body-text {
+      font-size: 14px;
+      color: rgba(232,228,220,0.72);
+      line-height: 1.82;
+    }
+
+    .label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .divider {
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.32;
+      margin: 10px 0 24px;
+    }
+
+    /* ══════════════════════════════════════════
+       SECTION SPACING
+    ══════════════════════════════════════════ */
+    .section { margin-bottom: 60px; }
+    .section:last-child { margin-bottom: 0; }
+
+    /* ══════════════════════════════════════════
+       INTERACTIVE CARD — has pointer + lift
+       Use ONLY when the card does something on click
+    ══════════════════════════════════════════ */
+    .card-interactive {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      cursor: pointer;
+      transition:
+        border-color 0.2s ease,
+        background  0.2s ease,
+        transform   0.22s var(--ease-out),
+        box-shadow  0.22s ease;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      color: inherit;
+    }
+
+    .card-interactive:hover,
+    .card-interactive:focus-visible {
+      border-color: var(--border-hover);
+      background: var(--surface-2);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .card-interactive:active {
+      transform: translateY(-1px);
+      transition-duration: 0.08s;
+    }
+
+    /* ══════════════════════════════════════════
+       STATIC CARD — no pointer, no lift
+       Use for purely informational content
+    ══════════════════════════════════════════ */
+    .card-static {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+    }
+
+    /* ══════════════════════════════════════════
+       HOME PAGE
+    ══════════════════════════════════════════ */
+    .hero { margin-bottom: 48px; }
+
+    .hero-role {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(58px, 10vw, 100px);
+      font-weight: 600;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 26px;
+    }
+
+    .hero-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(19px, 3vw, 29px);
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(232,228,220,0.5);
+      margin-bottom: 22px;
+      line-height: 1.3;
+    }
+
+    /* Credential pills */
+    .cred-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 20px 0 4px;
+    }
+
+    .cred-pill {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,170,100,0.22);
+      border-radius: 20px;
+      padding: 5px 13px;
+    }
+
+    /* CTA buttons */
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--gold);
+      color: #0c0e14;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      padding: 11px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      min-height: 44px;
+      transition: opacity 0.18s ease, transform 0.18s var(--ease-out);
+    }
+
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      padding: 11px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      min-height: 44px;
+      transition: color 0.18s ease, border-color 0.18s ease, transform 0.18s var(--ease-out);
+    }
+
+    .btn-secondary:hover { color: var(--text); border-color: var(--border-hover); transform: translateY(-1px); }
+    .btn-secondary:active { transform: translateY(0); }
+
+    /* Mission block */
+    .mission-block {
+      background: var(--surface);
+      border-left: 2px solid var(--gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 26px 30px;
+      margin-bottom: 52px;
+    }
+
+    .mission-block .label { display: block; margin-bottom: 10px; }
+
+    .mission-block p {
+      font-size: 14px;
+      color: rgba(232,228,220,0.78);
+      line-height: 1.82;
+      max-width: 540px;
+    }
+
+    /* Summary / nav cards —
+       These ARE interactive (they navigate to pages).
+       Justified: cursor:pointer + lift + focus ring */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .summary-icon {
+      width: 30px;
+      height: 30px;
+      color: var(--gold);
+      opacity: 0.72;
+      margin-bottom: 13px;
+      display: block;
+      transition: opacity 0.18s ease, transform 0.2s var(--ease-out);
+    }
+
+    .card-interactive:hover .summary-icon,
+    .card-interactive:focus-visible .summary-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .summary-card-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .summary-card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* "Go to" arrow hint — appears on hover/focus */
+    .card-hint {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0;
+      margin-top: 11px;
+      transition: opacity 0.18s ease;
+    }
+
+    .card-interactive:hover .card-hint,
+    .card-interactive:focus-visible .card-hint { opacity: 1; }
+
+    .card-hint svg { width: 11px; height: 11px; }
+
+    /* ══════════════════════════════════════════
+       EXPERIENCE — TIMELINE
+    ══════════════════════════════════════════ */
+    .timeline { display: flex; flex-direction: column; }
+
+    .timeline-item { display: flex; gap: 24px; }
+
+    .timeline-marker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid rgba(200,170,100,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timeline-dot svg { width: 15px; height: 15px; color: var(--gold); }
+
+    .timeline-line {
+      flex: 1;
+      width: 1px;
+      background: linear-gradient(to bottom, rgba(200,170,100,0.16), transparent);
+      margin-top: 4px;
+      min-height: 20px;
+    }
+
+    .timeline-content { flex: 1; padding-bottom: 32px; }
+    .timeline-item:last-child .timeline-content { padding-bottom: 0; }
+
+    /* Exp card — informational, no hover interactivity */
+    .exp-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
+    .exp-company {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .exp-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,170,100,0.18);
+      border-radius: 20px;
+      padding: 4px 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .exp-role {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 13px;
+    }
+
+    .exp-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: rgba(200,170,100,0.6);
+      margin-bottom: 15px;
+    }
+
+    .exp-detail { margin-bottom: 10px; }
+    .exp-detail .label { display: block; margin-bottom: 4px; opacity: 0.72; }
+    .exp-detail p { font-size: 13.5px; color: rgba(232,228,220,0.68); line-height: 1.76; }
+
+    .exp-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .exp-bullets li {
+      font-size: 13.5px;
+      color: rgba(232,228,220,0.68);
+      line-height: 1.76;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .exp-bullets li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    /* Honors — informational, no interaction */
+    .honors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .honor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .honor-card::after {
+      content: '';
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 72px; height: 72px;
+      background: radial-gradient(circle, rgba(200,170,100,0.06), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .honor-card .label { display: block; margin-bottom: 7px; }
+
+    .honor-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .honor-card p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+    /* ══════════════════════════════════════════
+       LAB — PROJECT CARDS (informational, no pointer)
+    ══════════════════════════════════════════ */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      /* cursor: default — NOT clickable, no hover lift */
+    }
+
+    .project-icon {
+      width: 36px; height: 36px;
+      color: var(--gold);
+      opacity: 0.68;
+      margin-bottom: 16px;
+    }
+
+    .project-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .project-card .body-text { flex: 1; margin-bottom: 20px; }
+
+    .project-goal {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: auto;
+    }
+
+    .project-goal .label { display: block; margin-bottom: 6px; }
+    .project-goal p { font-size: 13px; color: rgba(232,228,220,0.62); line-height: 1.72; }
+
+    /* ══════════════════════════════════════════
+       BEYOND PAGE
+    ══════════════════════════════════════════ */
+    .water-feature {
+      background: linear-gradient(140deg, rgba(100,130,200,0.07) 0%, var(--surface) 55%);
+      border: 1px solid rgba(110,140,210,0.13);
+      border-radius: var(--radius);
+      padding: 34px;
+    }
+
+    .water-title-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 5px;
+    }
+
+    .water-feature h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .water-role-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(130,160,220,0.72);
+      margin-bottom: 16px;
+    }
+
+    .sport-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .sport-item .label { display: block; margin-bottom: 6px; opacity: 0.72; }
+    .sport-item p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+    .pursuits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    /* Pursuit cards — informational, no pointer */
+    .pursuit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .pursuit-icon {
+      width: 28px; height: 28px;
+      color: var(--gold);
+      opacity: 0.68;
+      margin-bottom: 13px;
+      display: block;
+    }
+
+    .pursuit-card h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .pursuit-sub {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.52;
+      margin-bottom: 10px;
+    }
+
+    .pursuit-card p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+    .closing-line {
+      padding-top: 44px;
+      border-top: 1px solid var(--border);
+    }
+
+    .closing-line p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+      color: rgba(232,228,220,0.46);
+      line-height: 1.55;
+      max-width: 400px;
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE — TABLET (900–1024px)
+    ══════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      :root { --sidebar-w: 220px; }
+      .content { padding: 64px 40px 80px; }
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid   { grid-template-columns: 1fr 1fr !important; }
+      .projects-grid,
+      .pursuits-grid  { grid-template-columns: 1fr 1fr; }
+      .sport-grid     { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE — MOBILE (≤768px)
+    ══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar        { display: none; }
+      .mobile-header  { display: flex; }
+      .main           { margin-left: 0; }
+      .content        { padding: 80px 22px 64px; }
+
+      .summary-grid,
+      .honors-grid,
+      .projects-grid,
+      .pursuits-grid  { grid-template-columns: 1fr !important; }
+      .sport-grid     { grid-template-columns: 1fr; }
+
+      .exp-header     { flex-direction: column; align-items: flex-start; }
+
+      /* Hide visual timeline on mobile; cards stack cleanly */
+      .timeline-marker    { display: none; }
+      .timeline-item      { gap: 0; }
+      .timeline-content   { padding-bottom: 16px; }
+
+      .hero-name { font-size: clamp(52px, 16vw, 80px); }
+
+      .card-static,
+      .water-feature      { padding: 22px; }
+      .card-interactive   { padding: 22px; }
+    }
+
+    @media (max-width: 480px) {
+      .content            { padding: 74px 16px 56px; }
+      .mission-block      { padding: 20px 22px; }
+      .display-heading    { font-size: 42px; }
+      .hero-name          { font-size: 48px; }
+    }
+
+    /* ══════════════════════════════════════════
+       PRINT
+    ══════════════════════════════════════════ */
+    @media print {
+      .sidebar, .mobile-header, .mobile-menu { display: none !important; }
+      .main   { margin-left: 0; }
+      .page   { display: block !important; animation: none; }
+      .page + .page { page-break-before: always; }
+      body    { background: white; color: #111; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Skip to main content (keyboard a11y) ── -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- ═══════════════════════════════════════════
+     DESKTOP SIDEBAR
+═══════════════════════════════════════════ -->
+<aside class="sidebar" aria-label="Site navigation">
+  <div class="sidebar-brand">
+    <div class="sidebar-name">Yi Duan</div>
+    <div class="sidebar-title">Economics Student</div>
+  </div>
+
+  <nav aria-label="Primary navigation">
+    <ul class="nav-list" role="list">
+      <li>
+        <button class="nav-btn active" data-page="home"
+          onclick="navigate('home', this)"
+          aria-current="page">Home</button>
+      </li>
+      <li>
+        <button class="nav-btn" data-page="experience"
+          onclick="navigate('experience', this)">Experience</button>
+      </li>
+      <li>
+        <button class="nav-btn" data-page="lab"
+          onclick="navigate('lab', this)">The Lab</button>
+      </li>
+      <li>
+        <button class="nav-btn" data-page="beyond"
+          onclick="navigate('beyond', this)">Beyond the Desk</button>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="contact-links">
+      <a href="https://www.linkedin.com/in/limyiduan" class="contact-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile (opens new tab)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+    </div>
+    <p class="sidebar-note">A space to document my journey in finance, economic research, and AI tools.</p>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     MOBILE HEADER
+═══════════════════════════════════════════ -->
+<header class="mobile-header" role="banner">
+  <div class="mobile-brand" aria-hidden="true">Yi Duan</div>
+  <button
+    class="hamburger"
+    id="hamburger"
+    aria-label="Open navigation menu"
+    aria-expanded="false"
+    aria-controls="mobileMenu"
+    onclick="toggleMobileMenu()"
+  >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+</header>
+
+<!-- Mobile dropdown nav -->
+<div
+  id="mobileMenu"
+  class="mobile-menu"
+  role="navigation"
+  aria-label="Mobile navigation"
+  aria-hidden="true"
+>
+  <button class="nav-btn active" data-page="home"
+    onclick="navigate('home', this, true)"
+    aria-current="page">Home</button>
+  <button class="nav-btn" data-page="experience"
+    onclick="navigate('experience', this, true)">Experience</button>
+  <button class="nav-btn" data-page="lab"
+    onclick="navigate('lab', this, true)">The Lab</button>
+  <button class="nav-btn" data-page="beyond"
+    onclick="navigate('beyond', this, true)">Beyond the Desk</button>
+
+  <div class="mobile-menu-footer">
+    <a href="https://www.linkedin.com/in/limyiduan" class="contact-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn (opens new tab)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════ -->
+<main id="main-content" class="main">
+  <div class="content">
+
+    <!-- ══════════════════════════════════
+         HOME
+    ══════════════════════════════════ -->
+    <section id="page-home" class="page active" aria-labelledby="heading-home">
+
+      <div class="hero">
+        <div class="hero-role">Economics &amp; Actuarial Science @ SMU</div>
+        <h1 id="heading-home" class="hero-name">Lim<br>Yi Duan</h1>
+        <p class="hero-tagline">Synthesizing Capital, Logic &amp; Grit</p>
+        <p class="lead">Right now, I'm in a deliberate exploratory phase — treating my journey through finance, economics, and tech as a series of connected experiments. My current side quest is with SMU Thrive, where I'm diving into consulting to see how structured thinking translates into real-world impact for non-profits.</p>
+
+
+
+        <!-- Primary CTA -->
+        <div class="cta-row">
+          <a href="https://www.linkedin.com/in/limyiduan" class="btn-primary" target="_blank" rel="noopener noreferrer" aria-label="View LinkedIn profile (opens new tab)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            Connect on LinkedIn
+          </a>
+        </div>
+      </div>
+
+      <div class="mission-block">
+        <span class="label">Mission</span>
+        <p>My mission is to bridge the gap between classroom theory and workplace utility. I'm driven by the belief that a deep curiosity for how things work, paired with a builder's mindset, reveals opportunities and solutions that others might overlook.</p>
+      </div>
+
+      <!--
+        Summary cards navigate to pages → justified hover/lift/pointer
+        aria-labels describe the action, not just the content
+      -->
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr);">
+
+        <button class="card-interactive" onclick="navigate('experience')" aria-label="Go to Experience section">
+          <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+          <div class="summary-card-title">Institutional Learning</div>
+          <p class="summary-card-desc">Economics degree at SMU with focus on emerging markets and regional trends.</p>
+          <span class="card-hint" aria-hidden="true">
+            View Experience
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </button>
+
+        <button class="card-interactive" onclick="navigate('lab')" aria-label="Go to The Lab section">
+          <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          <div class="summary-card-title">Personal Experiments</div>
+          <p class="summary-card-desc">Building tools and exploring AI-driven solutions for real-world problems.</p>
+          <span class="card-hint" aria-hidden="true">
+            View The Lab
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </button>
+
+        <button class="card-interactive" onclick="navigate('experience'); setTimeout(() => document.getElementById('honors').scrollIntoView({behavior:'smooth'}), 50)" aria-label="Go to Honors and Recognitions">
+          <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+          <div class="summary-card-title">Academic Foundations</div>
+          <p class="summary-card-desc">ASEAN Scholar with SOA Probability certification.</p>
+          <span class="card-hint" aria-hidden="true">
+            View Honors
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </button>
+
+        <button class="card-interactive" onclick="navigate('beyond')" aria-label="Go to Beyond the Desk section">
+          <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>
+          </svg>
+          <div class="summary-card-title">Beyond the Desk</div>
+          <p class="summary-card-desc">Board sports, running, gaming, and staying grounded outside of work.</p>
+          <span class="card-hint" aria-hidden="true">
+            View More
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ══════════════════════════════════
+         EXPERIENCE
+    ══════════════════════════════════ -->
+    <section id="page-experience" class="page" aria-labelledby="heading-experience">
+
+      <div class="section">
+        <h2 id="heading-experience" class="display-heading">The Journey</h2>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="lead">Every challenge is an opportunity to build capability. These experiences shaped my approach to problem-solving.</p>
+      </div>
+
+      <!-- Timeline — informational content, no interactive hover -->
+      <div class="timeline section">
+
+        <!-- M3i -->
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">
+            <div class="timeline-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            </div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="card-static">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-company">M3i Investments</div>
+                  <div class="exp-role">Private Equity Intern</div>
+                </div>
+                <span class="exp-badge">May 2025 – Aug 2025</span>
+              </div>
+              <p class="exp-tagline">"Bridging the gap between traditional PE rigor and AI-augmented velocity."</p>
+              <ul class="exp-bullets">
+                <li>Translated large volumes of qualitative and quantitative data into decision-relevant insights, explicitly linking findings to growth, cost, risk, and compliance considerations</li>
+                <li>Built repeatable data systems from unstructured source materials, prioritising accuracy and documenting workflows for effective team handover</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- UOB -->
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">
+            <div class="timeline-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            </div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="card-static">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-company">United Overseas Bank</div>
+                  <div class="exp-role">Operations Analyst</div>
+                </div>
+                <span class="exp-badge">Dec 2023 – Feb 2024</span>
+              </div>
+              <p class="exp-tagline">"Where efficiency meets precision."</p>
+              <ul class="exp-bullets">
+                <li>Performed rigorous data validation and reconciliation across high-volume financial transactions, maintaining 100% accuracy in reporting</li>
+                <li>Developed an Excel Macro to automate reconciliation workflows, <strong style="color:var(--text);font-weight:500">improving operational efficiency by 20%</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thrive -->
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">
+            <div class="timeline-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            </div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="card-static">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-company">SMU Thrive Social Consulting</div>
+                  <div class="exp-role">Associate Consultant</div>
+                </div>
+                <span class="exp-badge">Sep 2025 – Present</span>
+              </div>
+              <p class="exp-tagline">"From ambiguity to clarity."</p>
+              <ul class="exp-bullets">
+                <li>Delivered structured research and analysis for non-profit clients, converting ambiguous problem statements into clear frameworks and actionable recommendations</li>
+                <li>Conducted stakeholder interviews and benchmarking, synthesising findings into decision-oriented outputs for client leadership</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emerging Markets -->
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">
+            <div class="timeline-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="card-static">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-company">SMU Emerging Markets</div>
+                  <div class="exp-role">Associate</div>
+                </div>
+                <span class="exp-badge">Sep 2024 – Dec 2025</span>
+              </div>
+              <p class="exp-tagline">"Synthesizing macro-economic shifts in East Asia."</p>
+              <ul class="exp-bullets">
+                <li>Performed macroeconomic and industry analysis across Asian markets, applying quantitative frameworks to assess growth drivers, competitive positioning, and risk factors</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAF -->
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">
+            <div class="timeline-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+          </div>
+          <div class="timeline-content">
+            <div class="card-static">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-company">Singapore Armed Forces</div>
+                  <div class="exp-role">Transport Specialist · Full-Time National Service</div>
+                </div>
+                <span class="exp-badge">Jan 2022 – Nov 2023</span>
+              </div>
+              <p class="exp-tagline">"Operational precision at scale."</p>
+              <ul class="exp-bullets">
+                <li>Coordinated end-to-end training logistics for 100 trainees, managing scheduling, rosters, and briefings across a structured operational environment</li>
+                <li>Liaised between trainees and senior commanders, ensuring clear communication and smooth execution of training programmes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="section" id="honors">
+        <h2 class="sub-heading">Education &amp; Honors</h2>
+        <p class="lead" style="margin-bottom:22px">A testament to consistent excellence and commitment to continuous growth.</p>
+        <div class="honors-grid">
+          <div class="honor-card">
+            <span class="label">Aug 2024 – May 2028</span>
+            <h3>Singapore Management University</h3>
+            <p>BSc Economics, 2nd Major in Actuarial Science · School of Economics Dean's List AY24/25</p>
+          </div>
+          <div class="honor-card">
+            <span class="label">Jan 2020 – Dec 2021</span>
+            <h3>Hwa Chong Institution</h3>
+            <p>GCE A Levels · Rank Points: 87.5 / 90</p>
+          </div>
+          <div class="honor-card">
+            <span class="label">Full Scholarship</span>
+            <h3>ASEAN Undergraduate Scholarship</h3>
+            <p>Awarded by the Singapore Government in recognition of academic excellence and leadership potential.</p>
+          </div>
+          <div class="honor-card">
+            <span class="label">Professional Certification</span>
+            <h3>SOA Probability (P) Exam</h3>
+            <p>Society of Actuaries actuarial examination in probability and quantitative methods — passed as an undergraduate, a credential typically pursued post-graduation.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ══════════════════════════════════
+         LAB
+    ══════════════════════════════════ -->
+    <section id="page-lab" class="page" aria-labelledby="heading-lab">
+
+      <div class="section">
+        <h2 id="heading-lab" class="display-heading">The Workshop</h2>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="lead">Trying out new ideas by actually building them. Every project is a hypothesis tested in production.</p>
+      </div>
+
+      <!-- Project cards are informational — no cursor:pointer, no lift, no false affordance -->
+      <div class="projects-grid">
+
+        <article class="project-card">
+          <svg class="project-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+          </svg>
+          <h3>Physics Material Generator</h3>
+          <p class="body-text">A tool that breaks down the Physics syllabus into small parts to make studying more targeted.</p>
+          <div class="project-goal">
+            <span class="label">The Goal</span>
+            <p>To see if a system can handle the repetitive parts of tutoring so I can focus more on actual teaching.</p>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <svg class="project-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <h3>This Website</h3>
+          <p class="body-text">The digital hub you are looking at right now.</p>
+          <div class="project-goal">
+            <span class="label">The Goal</span>
+            <p>To see if I can go from a rough idea to a professional website in just a few hours using AI. (And because it was fun!)</p>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <svg class="project-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+          </svg>
+          <h3>Invisible Infrastructure</h3>
+          <p class="body-text">Small programs built to collect and organize data automatically.</p>
+          <div class="project-goal">
+            <span class="label">The Goal</span>
+            <p>To automate the "grunt work" I encountered during internships, freeing up time for higher-level strategy.</p>
+          </div>
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ══════════════════════════════════
+         BEYOND
+    ══════════════════════════════════ -->
+    <section id="page-beyond" class="page" aria-labelledby="heading-beyond">
+
+      <div class="section">
+        <h2 id="heading-beyond" class="display-heading">The Pursuit<br>of Balance</h2>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="lead">The mind needs rest. But rest should push you forward, not hold you back.</p>
+      </div>
+
+      <!-- SMUX XSeed — now properly reflects both the finance role and the activities -->
+      <div class="section">
+        <div class="water-feature">
+          <div class="water-title-row">
+            <svg style="width:24px;height:24px;color:rgba(130,160,220,0.75);flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <h3>SMUX XSeed</h3>
+          </div>
+          <div class="water-role-label">Honorary Finance Secretary · Oct 2024 – Dec 2025</div>
+          <p class="body-text">Managed budgeting and cash flows for the club, achieving ~50% cost savings through disciplined cost controls. Beyond the numbers, I spent the year trying out different board sports — cableboarding, surfing, and paddling — which was as good a way as any to spend time outside the classroom.</p>
+          <div class="sport-grid">
+            <div class="sport-item">
+              <span class="label">Finance</span>
+              <p>~50% cost savings achieved through budget discipline and cash flow management across club activities.</p>
+            </div>
+            <div class="sport-item">
+              <span class="label">Cableboarding &amp; Surfing</span>
+              <p>A lot of trial and error and a lot of falling into the water, but a great way to spend a Saturday.</p>
+            </div>
+            <div class="sport-item">
+              <span class="label">Paddling at Sentosa</span>
+              <p>A chill way to relax and reset when you need to step away from everything else.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Community -->
+      <div class="section">
+        <h2 class="section-heading">Community &amp; Service</h2>
+        <div class="pursuits-grid" style="grid-template-columns: repeat(2, 1fr);">
+
+          <div class="pursuit-card">
+            <svg class="pursuit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+            <h3>Club Rainbow</h3>
+            <div class="pursuit-sub">Volunteer Tutor · Sep 2024 – Dec 2025</div>
+            <p>Provided academic support to hospitalised students, adapting teaching approaches to diverse learning needs. A reminder that education doesn't stop when life gets complicated.</p>
+          </div>
+
+          <div class="pursuit-card">
+            <svg class="pursuit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <h3>Hwa Chong Students' Council</h3>
+            <div class="pursuit-sub">Project Coordinator · Jan 2020 – Dec 2021</div>
+            <p>Managed end-to-end event execution across planning, cross-team coordination, and on-ground operations, delivering projects on time and within scope.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Personal pursuits -->
+      <div class="section">
+        <h2 class="section-heading">Outside of Work</h2>
+        <div class="pursuits-grid">
+
+          <div class="pursuit-card">
+            <svg class="pursuit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4m-2-2v4m7-1h2m-1-1v2"/>
+            </svg>
+            <h3>Gaming</h3>
+            <div class="pursuit-sub">NBA 2K &amp; League of Legends</div>
+            <p>I mostly stick to 2K and League when I want to unwind. Whether playing a few games on the court or jumping into the Rift with friends, it's a good way to switch off for a while.</p>
+          </div>
+
+          <div class="pursuit-card">
+            <svg class="pursuit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="4" r="1.5"/><path d="M9.5 9l-2 5h9l-2-5M7.5 14l-1.5 7M16.5 14l1.5 7M9.5 9l1 2 2-2 2 2 1-2"/>
+            </svg>
+            <h3>Running</h3>
+            <div class="pursuit-sub">Headspace &amp; Miles</div>
+            <p>My current go-to for clearing my head. It's simple, it's consistent, and it keeps me moving without having to think too much.</p>
+          </div>
+
+          <div class="pursuit-card">
+            <svg class="pursuit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>
+            </svg>
+            <h3>Touching Grass</h3>
+            <div class="pursuit-sub">Offline &amp; Outdoors</div>
+            <p>I make it a point to get away from my screens whenever I can. Sometimes you just need to get out of the house and remind yourself there's a world outside your devices.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="closing-line">
+        <p>Building things, learning stuff, and staying active. Thanks for stopping by.</p>
+      </div>
+
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  /* ──────────────────────────────────────────
+     STATE
+  ────────────────────────────────────────── */
+  let activePage = 'home';
+
+  /* ──────────────────────────────────────────
+     NAVIGATION
+  ────────────────────────────────────────── */
+  function navigate(pageId, _triggerBtn, isMobile) {
+    activePage = pageId;
+
+    // 1. Swap visible page
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+
+    // 2. Sync ALL nav buttons (sidebar + mobile) atomically by data-page
+    document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
+      const isThis = btn.dataset.page === pageId;
+      btn.classList.toggle('active', isThis);
+      if (isThis) {
+        btn.setAttribute('aria-current', 'page');
+      } else {
+        btn.removeAttribute('aria-current');
+      }
+    });
+
+    // 3. Close mobile menu if open
+    if (isMobile) closeMobileMenu();
+
+    // 4. Scroll to top
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    // 5. Shift keyboard focus to new page heading (screen readers + keyboard nav)
+    if (target) {
+      const h = target.querySelector('h1, h2');
+      if (h) {
+        h.setAttribute('tabindex', '-1');
+        h.focus({ preventScroll: true });
+        h.addEventListener('blur', () => h.removeAttribute('tabindex'), { once: true });
+      }
+    }
+  }
+
+  /* ──────────────────────────────────────────
+     MOBILE MENU
+  ────────────────────────────────────────── */
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    if (menu.classList.contains('open')) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  }
+
+  function openMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    const ham  = document.getElementById('hamburger');
+    menu.classList.add('open');
+    menu.setAttribute('aria-hidden', 'false');
+    ham.setAttribute('aria-expanded', 'true');
+    ham.setAttribute('aria-label', 'Close navigation menu');
+    document.body.classList.add('menu-open');
+  }
+
+  function closeMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    const ham  = document.getElementById('hamburger');
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden', 'true');
+    ham.setAttribute('aria-expanded', 'false');
+    ham.setAttribute('aria-label', 'Open navigation menu');
+    document.body.classList.remove('menu-open');
+  }
+
+  // ── Close on click outside ──
+  document.addEventListener('click', function (e) {
+    const menu   = document.getElementById('mobileMenu');
+    const header = document.querySelector('.mobile-header');
+    if (
+      menu.classList.contains('open') &&
+      !header.contains(e.target) &&
+       !menu.contains(e.target)
+    ) closeMobileMenu();
+  });
+
+  // ── Close on Escape ──
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeMobileMenu();
+  });
+</script>
+
+</body>
+</html>
